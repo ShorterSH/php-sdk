@@ -14,8 +14,7 @@ composer require shorter/sdk
 use Shorter\Sdk\ShorterClient;
 
 $client = new ShorterClient(
-    api_key: 'sk_your_key_here',     // or set SHORTER_API_KEY env var
-    base_url: 'https://shorter.sh',  // optional, this is the default
+    api_key: 'sk_your_key_here', // or set SHORTER_API_KEY env var
 );
 
 // Shorten a URL
