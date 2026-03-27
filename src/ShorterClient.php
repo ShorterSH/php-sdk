@@ -13,6 +13,7 @@ use Shorter\Sdk\Exceptions\AuthenticationException;
 
 class ShorterClient
 {
+    private const API_KEY_PATTERN = '/^sk_[a-f0-9]{64}$/';
     public readonly AnalyticsClient $analytics;
     private readonly HttpClient $http;
 
@@ -27,8 +28,8 @@ class ShorterClient
             throw new AuthenticationException('API key is required. Pass it as a parameter or set the SHORTER_API_KEY environment variable.', 'AUTH_REQUIRED');
         }
 
-        if (!str_starts_with($api_key, 'sk_')) {
-            throw new AuthenticationException('Invalid API key format. API key must start with "sk_".', 'INVALID_API_KEY');
+        if (!preg_match(self::API_KEY_PATTERN, $api_key)) {
+            throw new AuthenticationException('Invalid API key format. API key must match "sk_" followed by 64 lowercase hex characters.', 'INVALID_API_KEY');
         }
 
         $base_url = $base_url ?? 'https://shorter.sh';

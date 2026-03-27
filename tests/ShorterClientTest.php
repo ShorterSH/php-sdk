@@ -21,6 +21,8 @@ use Shorter\Sdk\ShorterClient;
 
 class ShorterClientTest extends TestCase
 {
+    private const TEST_KEY = 'sk_' . 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
     private function createClient(array $responses, array &$history = []): ShorterClient
     {
         $mock = new MockHandler($responses);
@@ -29,7 +31,7 @@ class ShorterClientTest extends TestCase
         $httpClient = new Client(['handler' => $stack]);
 
         return new ShorterClient(
-            api_key: 'sk_test_key',
+            api_key: self::TEST_KEY,
             base_url: 'https://shorter.sh',
             http_client: $httpClient,
         );
@@ -214,7 +216,7 @@ class ShorterClientTest extends TestCase
         $httpClient = new Client(['handler' => $stack]);
 
         $client = new ShorterClient(
-            api_key: 'sk_test_key',
+            api_key: self::TEST_KEY,
             base_url: 'https://shorter.sh',
             http_client: $httpClient,
         );
@@ -237,7 +239,7 @@ class ShorterClientTest extends TestCase
         $client->shorten('https://example.com');
 
         $request = $history[0]['request'];
-        $this->assertSame('Bearer sk_test_key', $request->getHeaderLine('Authorization'));
+        $this->assertSame('Bearer ' . self::TEST_KEY, $request->getHeaderLine('Authorization'));
     }
 
     public function testInvalidJsonResponse(): void
@@ -268,7 +270,8 @@ class ShorterClientTest extends TestCase
 
     public function testConstructorReadsEnvVar(): void
     {
-        putenv('SHORTER_API_KEY=sk_env_key');
+        $envKey = 'sk_' . str_repeat('b', 64);
+        putenv("SHORTER_API_KEY={$envKey}");
 
         try {
             $mock = new MockHandler([
@@ -287,7 +290,7 @@ class ShorterClientTest extends TestCase
             $client->shorten('https://example.com');
 
             $request = $history[0]['request'];
-            $this->assertSame('Bearer sk_env_key', $request->getHeaderLine('Authorization'));
+            $this->assertSame("Bearer {$envKey}", $request->getHeaderLine('Authorization'));
         } finally {
             putenv('SHORTER_API_KEY');
         }

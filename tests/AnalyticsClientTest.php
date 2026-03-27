@@ -16,6 +16,8 @@ use Shorter\Sdk\ShorterClient;
 
 class AnalyticsClientTest extends TestCase
 {
+    private const TEST_KEY = 'sk_' . 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
     private function createClient(array $responses, array &$history = []): ShorterClient
     {
         $mock = new MockHandler($responses);
@@ -24,7 +26,7 @@ class AnalyticsClientTest extends TestCase
         $httpClient = new Client(['handler' => $stack]);
 
         return new ShorterClient(
-            api_key: 'sk_test_key',
+            api_key: self::TEST_KEY,
             base_url: 'https://shorter.sh',
             http_client: $httpClient,
         );

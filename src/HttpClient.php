@@ -11,6 +11,8 @@ use Shorter\Sdk\Exceptions\ShorterException;
 
 class HttpClient
 {
+    private const REQUEST_TIMEOUT_SECONDS = 10;
+    private const CONNECT_TIMEOUT_SECONDS = 5;
     private readonly string $base_url;
 
     public function __construct(
@@ -36,6 +38,8 @@ class HttpClient
                 'Accept' => 'application/json',
             ],
             'http_errors' => false,
+            'timeout' => self::REQUEST_TIMEOUT_SECONDS,
+            'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS,
         ];
 
         if ($body !== null) {
