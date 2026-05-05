@@ -52,6 +52,8 @@ class ShorterClient
 
     public function list(?int $page = null, ?int $limit = null): ListUrlsResult
     {
+        Validation::pagination($page, $limit);
+
         $params = [
             'page' => $page !== null ? (string) $page : null,
             'limit' => $limit !== null ? (string) $limit : null,
@@ -64,7 +66,7 @@ class ShorterClient
 
     public function delete(string $short_code): DeleteResult
     {
-        $data = $this->http->request('DELETE', "/api/v1/urls/{$short_code}");
+        $data = $this->http->request('DELETE', '/api/v1/urls/' . Validation::pathShortCode($short_code));
 
         return DeleteResult::fromArray($data);
     }

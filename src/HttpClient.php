@@ -55,6 +55,19 @@ class HttpClient
 
         $status = $response->getStatusCode();
         $responseBody = (string) $response->getBody();
+
+        if ($responseBody === '') {
+            // Empty bodies are only acceptable on DELETE; everything else expects JSON.
+            if (strtoupper($method) === 'DELETE' && $status >= 200 && $status < 300) {
+                return [];
+            }
+            throw ShorterException::fromResponse(
+                $status,
+                "Empty response body from server",
+                'EMPTY_RESPONSE',
+            );
+        }
+
         $data = json_decode($responseBody, true);
 
         if (!is_array($data)) {
@@ -65,7 +78,10 @@ class HttpClient
             );
         }
 
-        if ($status < 200 || $status >= 300 || (isset($data['success']) && $data['success'] === false)) {
+        // Treat missing `success` as success when status is 2xx (some endpoints omit it).
+        $hasSuccessField = array_key_exists('success', $data);
+        $explicitFailure = $hasSuccessField && $data['success'] === false;
+        if ($status < 200 || $status >= 300 || $explicitFailure) {
             $message = $data['message'] ?? "Request failed with status {$status}";
             $code = $data['code'] ?? 'UNKNOWN_ERROR';
             throw ShorterException::fromResponse($status, $message, $code);

@@ -189,7 +189,24 @@ class ShorterClientTest extends TestCase
 
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('URL not found');
-        $client->delete('nonexistent');
+        $client->delete('zzzzzz');
+    }
+
+    public function testDeleteValidatesShortCode(): void
+    {
+        $history = [];
+        $client = $this->createClient([
+            new Response(200, [], json_encode([
+                'message' => 'URL deleted successfully',
+            ])),
+        ], $history);
+
+        try {
+            $client->delete('../bad');
+            $this->fail('Expected ValidationException');
+        } catch (ValidationException) {
+            $this->assertCount(0, $history);
+        }
     }
 
     public function testShortenValidationError(): void

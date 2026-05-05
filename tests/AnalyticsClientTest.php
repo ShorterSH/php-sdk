@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shorter\Sdk\Data\UrlAnalyticsDetailResult;
 use Shorter\Sdk\Data\UrlAnalyticsResult;
+use Shorter\Sdk\Exceptions\ValidationException;
 use Shorter\Sdk\ShorterClient;
 
 class AnalyticsClientTest extends TestCase
@@ -263,5 +264,23 @@ class AnalyticsClientTest extends TestCase
         $request = $history[0]['request'];
         $query = $request->getUri()->getQuery();
         $this->assertStringContainsString('detail=true', $query);
+    }
+
+    public function testUrlValidatesShortCode(): void
+    {
+        $history = [];
+        $client = $this->createClient([
+            new Response(200, [], json_encode([
+                'summary' => [],
+                'timeseries' => ['granularity' => 'day', 'data' => []],
+            ])),
+        ], $history);
+
+        try {
+            $client->analytics->url('bad/path');
+            $this->fail('Expected ValidationException');
+        } catch (ValidationException) {
+            $this->assertCount(0, $history);
+        }
     }
 }

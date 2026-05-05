@@ -42,7 +42,7 @@ class AnalyticsClient
             'detail' => $detail ? 'true' : null,
         ];
 
-        $data = $this->http->request('GET', "/api/v1/analytics/{$short_code}", $params);
+        $data = $this->http->request('GET', '/api/v1/analytics/' . Validation::pathShortCode($short_code), $params);
 
         if ($detail) {
             return UrlAnalyticsDetailResult::fromArray($data);
